@@ -1,0 +1,79 @@
+#include <DHT.h>
+#include <SoftwareSerial.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+SoftwareSerial satSerial(10, 11); // RX, TX
+#define LEDPIN 12
+
+bool sending = false;   // empieza sin enviar
+unsigned long lastSend = 0;
+
+void setup() {
+  Serial.begin(9600);
+  satSerial.begin(9600);
+  dht.begin();
+  pinMode(LEDPIN, OUTPUT);
+  delay(1000);
+  Serial.println("Satelite listo, esperando comandos...");
+  satSerial.println("LISTO"); // mensaje inicial a Tierra/PC
+}
+
+void loop() {
+  // Leer comandos
+  if (satSerial.available()) {
+    String cmd = satSerial.readStringUntil('\n');
+    cmd.trim();          // elimina espacios y \r\n
+    cmd.toLowerCase();   // convierte a minúsculas
+    if (cmd.length() == 0) return;
+
+    Serial.print("Cmd recibido: "); Serial.println(cmd);
+
+    if (cmd == "p") {
+      sending = false;
+      Serial.println("-> PAUSADO");
+      satSerial.println("ACK:P");
+    } else if (cmd == "r") {
+      sending = true;
+      Serial.println("-> REANUDADO");
+      satSerial.println("ACK:R");
+    } else if (cmd == "i") {
+      sending = true;
+      Serial.println("-> INICIADO");
+      satSerial.println("ACK:I");
+    } else {
+      satSerial.print("ACK:?"); satSerial.println(cmd);
+    }
+  }
+
+  // Enviar datos DHT cada 2 seg
+  if (sending && (millis() - lastSend >= 2000)) {
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+
+    // Error en lectura del sensor
+    if (isnan(h) || isnan(t)) {
+      Serial.println("ERROR lectura DHT!");
+      if (satSerial) {
+        satSerial.println("e");  // envia 'e' al Arduino Tierra
+      }
+    } else {
+      int hi = (int)round(h*100);
+      int ti = (int)round(t*100);
+      // Intentar enviar los datos
+      if (satSerial) {
+        satSerial.print(hi); satSerial.print(':'); satSerial.println(ti);
+        Serial.print("Enviado -> "); Serial.print(hi); Serial.print(':'); Serial.println(ti);
+      } else {
+        Serial.println("ERROR: satSerial no disponible!");
+        // envia 'e' si falla la comunicación
+        // (esto es muy raro, pero se agrega por seguridad)
+        satSerial.println("e");
+      }
+      digitalWrite(LEDPIN, HIGH); delay(80); digitalWrite(LEDPIN, LOW);
+    }
+    lastSend = millis();
+  }
+}
