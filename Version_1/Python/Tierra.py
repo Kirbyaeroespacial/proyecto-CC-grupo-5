@@ -27,7 +27,6 @@ def read_serial():
         while True:
             linea = usbSerial.readline().decode('utf-8').strip()
             if ":" in linea:
-                plot_active = True
                 ht = linea.split(":")
                 try:
                     temp = float(ht[1]) / 100
@@ -41,7 +40,7 @@ def read_serial():
             elif "e" in linea:
                 plot_active = False
             time.sleep(0.01)
-          
+
 
 threading.Thread(target=read_serial, daemon=True).start()
 
