@@ -7,7 +7,7 @@ const unsigned long timeout = 5000; // 5 segundos de timeout
 void setup() {
    Serial.begin(9600);
    mySerial.begin(9600);
-   Serial.println("Estacion Tierra lista reenviando USB <-> mySerial");
+   Serial.println("Iniciando COMM, Listo");
    pinMode (errpin, OUTPUT);
 }
 void loop() {
@@ -16,7 +16,6 @@ void loop() {
     command.trim();//Quitar elementos invisibles.
     if (command.length() > 0){
       mySerial.println(command);
-      Serial.println("Comando enviado");
     }
     
     }
