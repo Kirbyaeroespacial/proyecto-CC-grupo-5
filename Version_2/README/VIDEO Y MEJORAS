@@ -1,1 +1,14 @@
+MEJORAS IMPLEMENTADAS PARA LA VERSIÓN 2:
+  1. Nuevo protocolo de aplicacion de 1 a 8.
+  2. Sensor ultrasónico y servomotor (automático y/o manual)
+  3. Grafica polar para el radar.
+  4. Función del cálculo de medias de temperatura en satélite.
+  5. Funcion de cambio del periodo de transmisión y cambio del ángulo del motor por el usuario.
+  6. Implementación de la temperatura media en la gráfica existente de temperatura y humedad.
 
+COSAS A MEJORAR CARA PRÓXIMAS VERSIONES:
+  1. Decisión de dónde hacer el calculo de la media de temperaturas (actualmente solo se puede hacer en els satélite),
+  en la siguiente versión se podrá escoger donde hacerlo si satélite o estación de tierra.
+  2. Agregar un led en la estación de tierra cuando falla el sensor de distancia, acualmente salta un pop-up en Python.
+
+VÍDEO:
